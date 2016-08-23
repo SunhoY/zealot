@@ -6,6 +6,8 @@ import android.support.v4.view.ViewPager;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -32,6 +34,8 @@ import io.harry.zealot.wrapper.GagPagerAdapterWrapper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -51,6 +55,9 @@ public class TestAjaeActivityTest {
     @Mock
     private GagPagerAdapter mockGagPagerAdapter;
 
+    @Captor
+    ArgumentCaptor<ServiceCallback<List<String>>> stringListServiceCallbackCaptor;
+
     @Before
     public void setUp() throws Exception {
         ((TestZealotApplication) RuntimeEnvironment.application).getZealotComponent().inject(this);
@@ -65,8 +72,17 @@ public class TestAjaeActivityTest {
     }
 
     @Test
-    public void onCreate_callGagServiceToFetchResourceURLs() throws Exception {
+    public void onCreate_callGagServiceToFetchGagImageFileNames() throws Exception {
         verify(mockGagService).getGagImageFileNames(Matchers.<ServiceCallback<List<String>>>any());
+    }
+
+    @Test
+    public void afterFetchingGagImageFileNames_callsGagServiceToGetImageURLs() throws Exception {
+        verify(mockGagService).getGagImageFileNames(stringListServiceCallbackCaptor.capture());
+
+        stringListServiceCallbackCaptor.getValue().onSuccess(Arrays.asList("gag1.png", "gag2.png"));
+
+        verify(mockGagService).getGagImageURLs(eq(Arrays.asList("gag1.png", "gag2.png")), Matchers.<ServiceCallback<List<String>>> any());
     }
 
     @Test

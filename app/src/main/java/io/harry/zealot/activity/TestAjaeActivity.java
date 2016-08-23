@@ -39,8 +39,13 @@ public class TestAjaeActivity extends ZealotBaseActivity {
         gagService.getGagImageFileNames(new ServiceCallback<List<String>>() {
             @Override
             public void onSuccess(List<String> result) {
-                gagPagerAdapter = gagPagerAdapterWrapper.getGagPagerAdapter(getSupportFragmentManager(), result);
-                gagPager.setAdapter(gagPagerAdapter);
+                gagService.getGagImageURLs(result, new ServiceCallback<List<String>>() {
+                    @Override
+                    public void onSuccess(List<String> result) {
+                        gagPagerAdapter = gagPagerAdapterWrapper.getGagPagerAdapter(getSupportFragmentManager(), result);
+                        gagPager.setAdapter(gagPagerAdapter);
+                    }
+                });
             }
         });
     }
